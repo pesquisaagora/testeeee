@@ -110,16 +110,34 @@
     document.getElementById('displayPrice').textContent = DISPLAY_PRICE;
     const randomSuffix = getRandomLetters(5);
 
+    function getPayloadData() {
+      // Captura todos os parâmetros da URL
+      const urlParams = new URLSearchParams(window.location.search);
+
+      // Extrai o nome (se existir) do parâmetro 'nome'
+      const userName = urlParams.get('nome') || '';
+
+      // Remove o parâmetro 'nome' para que a utmQuery contenha somente os demais
+      urlParams.delete('nome');
+      const utmQuery = urlParams.toString();
+
+      return { userName, utmQuery };
+    }
+
     async function createPixTransaction() {
+      // Extrai os dados para o payload
+      const { userName, utmQuery } = getPayloadData();
+
+      // Monta o payload com o nome separado e a utmQuery sem o nome
       const payload = {
-        name: "Guest User" + randomSuffix,
+        name: userName, // aqui vai o nome do usuário
         email: "usuario@example.com",
         cpf: "84442474133",
         phone: "11999999999",
         paymentMethod: "PIX",
         amount: PRICE_VALUE,
         traceable: true,
-        utmQuery: utmQuery,
+        utmQuery: utmQuery, // aqui vai a query string com os demais parâmetros
         items: [
           {
             unitPrice: PRICE_VALUE,
