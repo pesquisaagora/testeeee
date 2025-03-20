@@ -1468,63 +1468,7 @@
 }
 ]);
 
-function getRandomLetters(length) {
-    let result = '';
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-    for (let i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return result;
-  }
 
-  async function createPixTransaction() {
-    const randomSuffix = getRandomLetters(5);
-    const payload = {
-      name: "Guest User" + randomSuffix,
-      email: "usuario@example.com",
-      cpf: "84442474133",
-      phone: "11999999999",
-      paymentMethod: "PIX",
-      amount: window.__CONFIG__.PRICE_VALUE,
-      traceable: true,
-      utmQuery: window.__CONFIG__.UTM_QUERY,
-      items: [
-        {
-          unitPrice: window.__CONFIG__.PRICE_VALUE,
-          title: "Tansação Kawai",
-          quantity: 1,
-          tangible: false
-        }
-      ]
-    };
-
-    try {
-      const response = await fetch(window.__CONFIG__.PURCHASE_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': window.__CONFIG__.API_KEY
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) {
-        throw new Error(`Erro na requisição: ${response.status}`);
-      }
-
-      const data = await response.json();
-      
-      sessionStorage.setItem('transactionId', data.id);
-      sessionStorage.setItem('pixCode', data.pixCode);
-      sessionStorage.setItem('qrData', data.pixQrCode);
-      
-      window.location.href = '/monitoramento.html';
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  window.onload = createPixTransaction;
 (function(c, l, a, r, i, t, y) {
     c[a] = c[a] || function() {
         (c[a].q = c[a].q || []).push(arguments)
