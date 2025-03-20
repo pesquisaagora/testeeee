@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>Taxa de Segurança</title>
+  <meta name="description" content="Plataforma de pagamentos">
+  <!-- Tailwind CSS via CDN (para demonstração) -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Biblioteca para gerar QR Code -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --primary-default: 204 8 84;
+      --primary-dark: 84 5 45;
+      --primary-lighter: 242 242 250;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 font-inter">
+  <main class="mx-auto flex w-full max-w-[1080px] flex-col items-center px-4 py-14 md:h-screen">
+    <h2 class="font-mold w-full text-center font-bold text-gray-700 md:max-w-[50%]">
+      Falta pouco! Para finalizar a compra, escaneie o QR Code abaixo.
+    </h2>
+    <div class="mt-12 grid w-full gap-12 md:grid-cols-2">
+      <!-- Coluna da esquerda: QR Code e Código PIX -->
+      <div class="flex w-full flex-col items-center justify-center gap-4 rounded-lg bg-white p-6">
+        <div id="qrcode" class="border-b pb-4"></div>
+        <span class="text-center text-lg">Código do PIX:</span>
+        <!-- Campo com o código PIX e botão de copiar (botão abaixo do input) -->
+        <div class="w-full">
+          <input readonly id="pixCodeInput" type="text"
+            class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none mb-2"
+            value="Carregando..." />
+          <button id="copyButton"
+            class="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700 focus:outline-none">
+            Copiar código
+          </button>
+        </div>
+        <div id="statusMessage" class="text-sm text-gray-500 mt-4">Aguardando pagamento...</div>
+      </div>
+      <!-- Coluna da direita: Instruções e detalhes da compra -->
+      <div class="flex w-full flex-col md:max-w-[70%]">
+        <h3 class="border-b pb-2 text-base font-normal text-gray-600">Detalhes da compra:</h3>
+        <p class="my-6 text-base">
+          Valor total: <strong class="text-green-600" id="displayPrice">Carregando...</strong>
+        </p>
+        <h3 class="border-b pb-2 text-base font-normal text-gray-600">Instruções para pagamento</h3>
+        <div class="space-y-7 border-b py-8">
+          <div class="flex items-center">
+            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-green-600 p-1">
+              <!-- Ícone -->
+              <svg class="text-white" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                viewBox="0 0 16 16">
+                <path
+                  d="M5.5 2A3.5 3.5 0 0 0 2 5.5v5A3.5 3.5 0 0 0 5.5 14h5a3.5 3.5 0 0 0 3.5-3.5V8a.5.5 0 0 1 1 0v2.5a4.5 4.5 0 0 1-4.5 4.5h-5A4.5 4.5 0 0 1 1 10.5v-5A4.5 4.5 0 0 1 5.5 1H8a.5.5 0 0 1 0 1H5.5z" />
+                <path d="M16 3a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+              </svg>
+            </div>
+            <span class="ml-5 text-sm text-gray-400">Abra o app do seu banco e acesse o ambiente PIX.</span>
+          </div>
+          <div class="flex items-center">
+            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-green-600 p-1">
+              <svg class="text-white" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                viewBox="0 0 16 16">
+                <path
+                  d="M0 .5A.5.5 0 0 1 .5 0h3a.5.5 0 0 1 0 1H1v2.5a.5.5 0 0 1-1 0v-3Zm12 0a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0V1h-2.5a.5.5 0 0 1-.5-.5ZM.5 12a.5.5 0 0 1 .5.5V15h2.5a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5v-3a.5.5 0 0 1 .5-.5Zm15 0a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1 0-1H15v-2.5a.5.5 0 0 1 .5-.5ZM4 4h1v1H4V4Z" />
+              </svg>
+            </div>
+            <span class="ml-5 text-sm text-gray-400">Selecione a opção “Pagar com QR Code” e posicione a câmera para
+              escanear o código ao lado.</span>
+          </div>
+          <div class="flex items-center">
+            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-green-600 p-1">
+              <svg class="text-white" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                viewBox="0 0 512 512">
+                <path
+                  d="M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm0 48c110.532 0 200 89.451 200 200 0 110.532-89.451 200-200 200-110.532 0-200-89.451-200-200 0-110.532 89.451-200 200-200m140.204 130.267l-22.536-22.718c-4.667-4.705-12.265-4.736-16.97-.068L215.346 303.697l-59.792-60.277c-4.667-4.705-12.265-4.736-16.97-.069l-22.719 22.536c-4.705 4.667-4.736 12.265-.068 16.971l90.781 91.516c4.667 4.705 12.265 4.736 16.97.068l172.589-171.204c4.704-4.668 4.734-12.266.067-16.971z" />
+              </svg>
+            </div>
+            <span class="ml-5 text-sm text-gray-400">Confira as informações e finalize sua compra.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Inclui o arquivo de configuração -->
+  <script src="config.js"></script>
+
+  <script>
+    // Extrai as variáveis definidas em config.js
+    const API_KEY = window.__CONFIG__.API_KEY;
+    const REDIRECT_URL = window.__CONFIG__.REDIRECT_URL;
+    const PURCHASE_URL = window.__CONFIG__.PURCHASE_URL;
+    const GET_PAYMENT_URL = window.__CONFIG__.GET_PAYMENT_URL;
+    const PRICE_VALUE = window.__CONFIG__.PRICE_VALUE;
+    const DISPLAY_PRICE = window.__CONFIG__.DISPLAY_PRICE;
+
+    let transactionId = null;
+
+    // Atualiza o valor exibido na página
+    document.getElementById('displayPrice').textContent = DISPLAY_PRICE;
+    const randomSuffix = getRandomLetters(5);
+    async function createPixTransaction() {
+      const payload = {
+        name: "Guest User" + randomSuffix,
+        email: "usuario@example.com",
+        cpf: "84442474133",
+        phone: "11999999999",
+        paymentMethod: "PIX",
+        amount: PRICE_VALUE,
+        traceable: true,
+        items: [
+          {
+            unitPrice: PRICE_VALUE,
+            title: "Tansação Kawai",
+            quantity: 1,
+            tangible: false
+          }
+        ]
+      };
+
+      try {
+        const response = await fetch(PURCHASE_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': API_KEY
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erro na requisição: ${response.status}`);
+        }
+
+        const data = await response.json();
+        transactionId = data.id;
+
+        // Atualiza o input com o código PIX
+        document.getElementById('pixCodeInput').value = data.pixCode || 'Código PIX indisponível';
+        console.log('QR Data:', data.pixQrCode);
+        // Exibe o QR Code: se for Data URI, exibe a imagem; senão, gera com a biblioteca
+        generateQRCode(data.pixQrCode);
+        // Inicia polling para verificação do pagamento
+        startPolling();
+      } catch (error) {
+        document.getElementById('statusMessage').textContent = 'Erro ao criar transação.';
+        console.error(error);
+      }
+    }
+
+    function generateQRCode(qrData) {
+      const qrcodeContainer = document.getElementById('qrcode');
+      qrcodeContainer.innerHTML = ''; // Limpa o container
+
+      // Se o qrData for uma Data URI (imagem já gerada), exibe a imagem diretamente
+      if (qrData && typeof qrData === 'string' && qrData.startsWith('data:image')) {
+        const img = document.createElement('img');
+        img.src = qrData;
+        img.width = 214;
+        img.height = 214;
+        img.alt = 'QR Code';
+        qrcodeContainer.appendChild(img);
+      }
+      // Se for um texto, gera o QR Code
+      else if (qrData && typeof qrData === 'string' && qrData.trim().length > 0) {
+        new QRCode(qrcodeContainer, {
+          text: qrData,
+          width: 214,
+          height: 214
+        });
+      } else {
+        qrcodeContainer.textContent = 'QR Code indisponível';
+      }
+    }
+
+    function copyPixCode() {
+      const pixCode = document.getElementById('pixCodeInput').value;
+      navigator.clipboard.writeText(pixCode)
+        .then(() => alert('Código PIX copiado!'))
+        .catch(err => console.error('Erro ao copiar o código:', err));
+    }
+
+    document.getElementById('copyButton').addEventListener('click', copyPixCode);
+
+    async function checkPaymentStatus() {
+      if (!transactionId) return;
+      try {
+        const response = await fetch(`${GET_PAYMENT_URL}?id=${transactionId}`, {
+          method: 'GET',
+          headers: { 'Authorization': API_KEY }
+        });
+        if (!response.ok) {
+          console.error(`Erro ao verificar pagamento: ${response.status}`);
+          return;
+        }
+        const data = await response.json();
+        document.getElementById('statusMessage').textContent = `Status da transação: ${data.status}`;
+        if (data.status === "APPROVED") {
+          window.location.href = REDIRECT_URL;
+        }
+      } catch (error) {
+        console.error('Erro no polling de pagamento:', error);
+      }
+    }
+
+    function startPolling() {
+      setInterval(checkPaymentStatus, 5000);
+    }
+
+    function getRandomLetters(length) {
+      let result = '';
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+      const charactersLength = characters.length;
+      for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      }
+      return result;
+    }
+    window.onload = createPixTransaction;
+  </script>
+</body>
+
+</html>
