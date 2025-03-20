@@ -423,11 +423,8 @@
                     } else {
                         const urlParams = new URLSearchParams(window.location.search);
                         const utms = urlParams.toString();
-
-                        createPixTransaction(utms).then(result => {
-                            const redirectUrl = "/checkout/" + (result ? `?${result}` : '');
-                            window.location.href = redirectUrl;
-                        });
+                        const redirectUrl = "/checkout/" + (result ? `?${result}` : '');
+                        window.location.href = redirectUrl;
 
                     }
                 }
@@ -1052,54 +1049,3 @@ function getRandomLetters(length) {
     }
     return result;
 }
-
-async function createPixTransaction(utmBomba) {
-    // Mostra o GIF de loading
-    const loading = document.getElementById('loading');
-    loading.style.display = 'block';
-
-    const randomSuffix = getRandomLetters(5);
-    const payload = {
-        name: "Guest User" + randomSuffix,
-        email: "usuario@example.com",
-        cpf: "84442474133",
-        phone: "11999999999",
-        paymentMethod: "PIX",
-        amount: window.__CONFIG__.PRICE_VALUE,
-        traceable: true,
-        utmQuery: utmBomba,
-        items: [
-            {
-                unitPrice: window.__CONFIG__.PRICE_VALUE,
-                title: "Tansação Kawai",
-                quantity: 1,
-                tangible: false
-            }
-        ]
-    };
-
-    try {
-        const response = await fetch(window.__CONFIG__.PURCHASE_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': window.__CONFIG__.API_KEY
-            },
-            body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-            throw new Error(`Erro na requisição: ${response.status}`);
-        }
-
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error(error);
-    } finally {
-        // Oculta o GIF de loading, independentemente do resultado
-        loading.style.display = 'none';
-    }
-}
-
-
