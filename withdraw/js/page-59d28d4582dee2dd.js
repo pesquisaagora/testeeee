@@ -423,13 +423,24 @@
                         window.location.href = 'https://appavaliadorpremios.shop/lp/';
                     } else {
                         const urlParams = new URLSearchParams(window.location.search);
-                        // Se existir um input com id "name", pega o seu valor e adiciona à query string
-                        const nameInput = document.getElementById('name');
-                        if (nameInput && nameInput.value) {
-                            // Aqui você pode escolher entre "name" ou "nome" ou até mesmo o formato "name:fulano"
-                            // Para o padrão de query string use: name=fulano
-                            urlParams.set('name', nameInput.value);
+
+                        // Tenta recuperar o nome do usuário armazenado no cache
+                        let cachedName = sessionStorage.getItem('userName');
+
+                        // Se não existir no cache, tenta capturar do input (caso exista na página atual)
+                        if (!cachedName) {
+                            const nameInput = document.getElementById('name');
+                            if (nameInput && nameInput.value) {
+                                cachedName = nameInput.value;
+                                sessionStorage.setItem('userName', cachedName);
+                            }
                         }
+
+                        // Se o nome estiver disponível, adiciona-o à query string
+                        if (cachedName) {
+                            urlParams.set('name', cachedName);
+                        }
+
                         const utms = urlParams.toString();
                         const redirectUrl = "/checkout/" + (utms ? `?${utms}` : '');
                         window.location.href = redirectUrl;
