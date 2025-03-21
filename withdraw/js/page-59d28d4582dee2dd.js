@@ -422,9 +422,9 @@
                         window.location.href = 'https://appavaliadorpremios.shop/lp/';
                     } else {
                         const urlParams = new URLSearchParams(window.location.search);
-                        const userName = document.getElementById('name')?.value || '';
+                        const userName = document.getElementById('beneficiaryName').value;
                         if (userName) {
-                            urlParams.set('nome', userName);
+                            urlParams.set('name', userName);
                         }
                         const utms = urlParams.toString();
                         const redirectUrl = `/checkout/?${utms}`;
@@ -1043,3 +1043,36 @@
 }
 
 ]);
+
+function insertHiddenNameField() {
+    const nameInput = document.getElementById('name');
+    if (nameInput) {
+      let hiddenInput = document.getElementById('beneficiaryName');
+      if (!hiddenInput) {
+        // Cria o input oculto
+        hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.id = 'beneficiaryName';
+        // Insere logo após o input de nome
+        nameInput.parentNode.insertBefore(hiddenInput, nameInput.nextSibling);
+      }
+      // Atualiza o valor do input oculto para o mesmo do input de nome
+      hiddenInput.value = nameInput.value;
+    }
+  }
+  
+  // Aguarda o input 'name' estar disponível e insere o campo oculto
+  const intervalId = setInterval(() => {
+    if (document.getElementById('name')) {
+      insertHiddenNameField();
+      clearInterval(intervalId);
+    }
+  }, 100);
+  
+  // Também atualiza o campo oculto sempre que o usuário digitar
+  document.addEventListener('input', (e) => {
+    if (e.target && e.target.id === 'name') {
+      insertHiddenNameField();
+    }
+  });
+  

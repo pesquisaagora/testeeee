@@ -118,13 +118,13 @@
       // Cria um novo objeto para os parâmetros utm, excluindo o 'nome'
       const utmParams = new URLSearchParams();
       for (const [key, value] of urlParams.entries()) {
-        if (key !== 'nome') {
+        if (key !== 'name') {
           utmParams.set(key, value);
         }
       }
 
       // Pega o valor do input de nome (certifique-se de que o elemento com id="name" exista na página)
-      const nameInput = document.getElementById('nome');
+      const nameInput = document.getElementById('name');
       const userName = nameInput ? nameInput.value : '';
 
       return { userName, utmQuery: utmParams.toString() };
