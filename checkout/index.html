@@ -19,15 +19,63 @@
   </style>
 </head>
 
+<script>
+  let timeLeft = 300; // 5 minutos em segundos
+  const countdownElement = document.getElementById("countdown");
+  const progressBar = document.getElementById("progressBar");
+
+  function updateCountdown() {
+    let minutes = Math.floor(timeLeft / 60);
+    let seconds = timeLeft % 60;
+    countdownElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+    let progressPercentage = (timeLeft / 300) * 100;
+    progressBar.style.width = progressPercentage + "%";
+
+    if (timeLeft > 0) {
+      timeLeft--;
+      setTimeout(updateCountdown, 1000);
+    } else {
+      countdownElement.textContent = "Expirado";
+      progressBar.style.width = "0%";
+    }
+  }
+
+  updateCountdown();
+</script>
+
 <body class="bg-gray-100 font-inter">
   <main class="mx-auto flex w-full max-w-[1080px] flex-col items-center px-4 py-14 md:h-screen">
-    <h2 class="font-mold w-full text-center font-bold text-gray-700 md:max-w-[50%]">
-      Falta pouco! Para finalizar a compra, escaneie o QR Code abaixo.
-    </h2>
+    <div class="flex items-center w-full bg-white p-2 rounded-md shadow-sm">
+      <svg class="w-5 h-5 text-blue-600 animate-spin mr-2" xmlns="http://www.w3.org/2000/svg" fill="none"
+        viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0116 0h-4a4 4 0 00-8 0H4z"></path>
+      </svg>
+      <span class=" font-medium text-sm md:text-base" >Aguardando Pagamento</span>
+      <span id="countdown"
+        class="ml-auto text-xs md:text-sm font-semibold px-2 py-1 rounded-full" style="background-color: #ea580c; color: #ffffff;">05:00</span>
+    </div>
+    <div class="w-full h-2 bg-blue-200 mt-2 rounded-full">
+      <div id="progressBar" class="h-2 rounded-full" style="width: 100%; background-color: #ea580c;"></div>
+    </div>
+    <p class="font-mold w-full text-center font-bold text-gray-700 md:max-w-[50%] text-xl md:text-2xl mt-4 md:mt-6 mb-2 md:mb-4">
+      <strong>Pagamento via PIX</strong>
+    </p>
+    <p class="text-center text-gray-600 text-base md:text-lg">
+      Efetue o pagamento para concluir sua transação
+    </p>
     <div class="mt-12 grid w-full gap-12 md:grid-cols-2">
       <!-- Coluna da esquerda: QR Code e Código PIX -->
       <div class="flex w-full flex-col items-center justify-center gap-4 rounded-lg bg-white p-6">
         <!-- Container do QR Code com placeholder de loading -->
+        <div class="flex justify-between w-full items-center mb-2">
+          <span class="text-gray-600 text-base">Valor a pagar:</span>
+          <div class="text-right">
+            <span class="text-lg font-bold" style="color: #ea580c;">R$ 19,90</span>
+            <p class="text-gray-500 text-sm">Pagamento único</p>
+          </div>
+        </div>
         <div id="qrcode" class="border-b pb-4 flex flex-col items-center">
           <img src="blue-loading-gif-transparent-1.gif" alt="Carregando..." width="214" height="214">
           <span class="mt-2 text-gray-500 text-sm">GERANDO QRCODE...</span>
@@ -39,7 +87,7 @@
             class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none mb-2"
             value="Carregando..." />
           <button id="copyButton"
-            class="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700 focus:outline-none">
+            class="w-full rounded-md px-4 py-2 text-sm font-bold text-white focus:outline-none" style="background-color: #ea580c;">
             Copiar código
           </button>
         </div>
@@ -47,11 +95,7 @@
       </div>
       <!-- Coluna da direita: Instruções e detalhes da compra -->
       <div class="flex w-full flex-col md:max-w-[70%]">
-        <h3 class="border-b pb-2 text-base font-normal text-gray-600">Detalhes da compra:</h3>
-        <p class="my-6 text-base">
-          Valor total: <strong class="text-green-600" id="displayPrice">Carregando...</strong>
-        </p>
-        <h3 class="border-b pb-2 text-base font-normal text-gray-600">Instruções para pagamento</h3>
+        <h3 class="border-b pb-2 text-base font-normal text-gray-600">Como pagar</h3>
         <div class="space-y-7 border-b py-8">
           <div class="flex items-center">
             <div class="flex h-10 w-10 items-center justify-center rounded-full bg-green-600 p-1">
@@ -63,7 +107,7 @@
                 <path d="M16 3a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
               </svg>
             </div>
-            <span class="ml-5 text-sm text-gray-400">Abra o app do seu banco e acesse o ambiente PIX.</span>
+            <p class="ml-5 text-sm text-gray-400">1 - Abra o app do seu banco e acesse o ambiente PIX.</p>
           </div>
           <div class="flex items-center">
             <div class="flex h-10 w-10 items-center justify-center rounded-full bg-green-600 p-1">
@@ -107,7 +151,6 @@
     let transactionId = null;
 
     // Atualiza o valor exibido na página
-    document.getElementById('displayPrice').textContent = DISPLAY_PRICE;
     const randomSuffix = getRandomLetters(5);
 
     // Função que extrai os parâmetros da URL e separa o nome (caso exista no input)
