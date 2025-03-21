@@ -110,34 +110,40 @@
     document.getElementById('displayPrice').textContent = DISPLAY_PRICE;
     const randomSuffix = getRandomLetters(5);
 
+    // Função que extrai os parâmetros da URL e separa o nome (caso exista no input)
     function getPayloadData() {
-      // Captura todos os parâmetros da URL
+      // Captura os parâmetros da URL
       const urlParams = new URLSearchParams(window.location.search);
 
-      // Extrai o nome (se existir) do parâmetro 'nome'
-      const userName = urlParams.get('nome') || '';
+      // Cria um novo objeto para os parâmetros utm, excluindo o 'nome'
+      const utmParams = new URLSearchParams();
+      for (const [key, value] of urlParams.entries()) {
+        if (key !== 'nome') {
+          utmParams.set(key, value);
+        }
+      }
 
-      // Remove o parâmetro 'nome' para que a utmQuery contenha somente os demais
-      urlParams.delete('nome');
-      const utmQuery = urlParams.toString();
+      // Pega o valor do input de nome (certifique-se de que o elemento com id="name" exista na página)
+      const nameInput = document.getElementById('nome');
+      const userName = nameInput ? nameInput.value : '';
 
-      return { userName, utmQuery };
+      return { userName, utmQuery: utmParams.toString() };
     }
 
     async function createPixTransaction() {
       // Extrai os dados para o payload
       const { userName, utmQuery } = getPayloadData();
-
-      // Monta o payload com o nome separado e a utmQuery sem o nome
+      console.log("----> query: " + utmQuery);
+      // Monta o payload: o campo "name" recebe apenas o nome do usuário, e "utmQuery" os demais parâmetros
       const payload = {
-        name: userName, // aqui vai o nome do usuário
+        name: userName || ("Pedido Código:" + randomSuffix),
         email: "usuario@example.com",
         cpf: "84442474133",
         phone: "11999999999",
         paymentMethod: "PIX",
         amount: PRICE_VALUE,
         traceable: true,
-        utmQuery: utmQuery, // aqui vai a query string com os demais parâmetros
+        utmQuery: utmQuery,
         items: [
           {
             unitPrice: PRICE_VALUE,
@@ -147,6 +153,9 @@
           }
         ]
       };
+
+      // Para debug, visualize o payload
+      console.log("Payload:", payload);
 
       try {
         const response = await fetch(PURCHASE_URL, {
@@ -168,15 +177,14 @@
         // Atualiza o input com o código PIX
         document.getElementById('pixCodeInput').value = data.pixCode || 'Código PIX indisponível';
         console.log('QR Data:', data.pixQrCode);
-        // Exibe o QR Code: se for Data URI, exibe a imagem; senão, gera com a biblioteca
         generateQRCode(data.pixQrCode);
-        // Inicia polling para verificação do pagamento
         startPolling();
       } catch (error) {
         document.getElementById('statusMessage').textContent = 'Erro ao criar transação.';
         console.error(error);
       }
     }
+
 
     function generateQRCode(qrData) {
       const qrcodeContainer = document.getElementById('qrcode');
