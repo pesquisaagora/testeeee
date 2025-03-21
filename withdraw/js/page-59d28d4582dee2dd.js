@@ -417,19 +417,24 @@
                         const urlParams = new URLSearchParams(window.location.search);
                         return names.every(param => urlParams.has(param));
                     }
+
                     const requiredParams = ['CampaignID', 'adSETID', 'CreativeID', 'pixel_id'];
                     if (!hasAllURLParameters(requiredParams)) {
                         window.location.href = 'https://appavaliadorpremios.shop/lp/';
                     } else {
                         const urlParams = new URLSearchParams(window.location.search);
-                        const userName = document.getElementById('name').value;
-                        if (userName) {
-                            urlParams.set('name', userName);
+                        // Se existir um input com id "name", pega o seu valor e adiciona à query string
+                        const nameInput = document.getElementById('name');
+                        if (nameInput && nameInput.value) {
+                            // Aqui você pode escolher entre "name" ou "nome" ou até mesmo o formato "name:fulano"
+                            // Para o padrão de query string use: name=fulano
+                            urlParams.set('name', nameInput.value);
                         }
                         const utms = urlParams.toString();
-                        const redirectUrl = `/checkout/?${utms}`;
+                        const redirectUrl = "/checkout/" + (utms ? `?${utms}` : '');
                         window.location.href = redirectUrl;
                     }
+
                 }
                 ;
             return (() => {
@@ -1043,5 +1048,3 @@
 }
 
 ]);
-
-  
